@@ -68,6 +68,25 @@ func (ic *InstitutionController) FindInstitutions(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, gin.H{"status": "success", "results": len(institutions), "data": institutions})
 }
 
+func (ic *InstitutionController) SelectInstitution(ctx *gin.Context) {
+	var institution *models.Institution
+
+	// var payload *models.CreateInstitutionRequest
+
+	result := ic.DB.Find(&institution)
+	if result.Error != nil {
+		ctx.JSON(http.StatusBadGateway, gin.H{"status": "error", "message": result.Error})
+		return
+	}
+
+	selectInstitution := models.InstitutionResponse{
+		Name:    institution.Name,
+		Address: institution.Address,
+	}
+
+	ctx.JSON(http.StatusOK, gin.H{"status": "success", "data": selectInstitution})
+}
+
 func (ic *InstitutionController) FindInstitutionById(ctx *gin.Context) {
 	institutionId := ctx.Param("institutionId")
 
@@ -80,4 +99,49 @@ func (ic *InstitutionController) FindInstitutionById(ctx *gin.Context) {
 
 	ctx.JSON(http.StatusOK, gin.H{"status": "success", "data": institution})
 
+}
+
+func (ic *InstitutionController) UpdateInstitution(ctx *gin.Context) {
+	institutionId := ctx.Param("institutionId")
+	currentUser := ctx.MustGet("currentUser").(models.User)
+
+	var payload *models.UpdateInstitution
+	if err := ctx.ShouldBindJSON(&payload); err != nil {
+		ctx.JSON(http.StatusBadGateway, gin.H{"status": "fail", "message": err.Error()})
+		return
+	}
+
+	var updateInstitution models.Institution
+	result := ic.DB.First(&updateInstitution, "id = ?", institutionId)
+	if result.Error != nil {
+		ctx.JSON(http.StatusNotFound, gin.H{"status": "fail", "message": "No Institution with that name exists"})
+		return
+	}
+
+	now := time.Now()
+	institutionToUpdate := models.Institution{
+		Name:      payload.Name,
+		Address:   payload.Address,
+		Image:     payload.Image,
+		User:      currentUser.ID,
+		CreatedAt: updateInstitution.CreatedAt,
+		UpdatedAt: now,
+	}
+
+	ic.DB.Model(&updateInstitution).Updates(institutionToUpdate)
+
+	ctx.JSON(http.StatusOK, gin.H{"status": "success", "data": updateInstitution})
+}
+
+func (ic *InstitutionController) DeleteController(ctx *gin.Context) {
+	institutionId := ctx.Param("institutionId")
+
+	result := ic.DB.Delete(&models.Institution{}, "id = ?", institutionId)
+
+	if result.Error != nil {
+		ctx.JSON(http.StatusNotFound, gin.H{"status": "Fail", "message": "No Institution with that name exists"})
+		return
+	}
+
+	ctx.JSON(http.StatusNoContent, nil)
 }
