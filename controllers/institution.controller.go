@@ -143,5 +143,5 @@ func (ic *InstitutionController) DeleteController(ctx *gin.Context) {
 		return
 	}
 
-	ctx.JSON(http.StatusNoContent, nil)
+	ctx.JSON(http.StatusOK, gin.H{"status": "success"})
 }

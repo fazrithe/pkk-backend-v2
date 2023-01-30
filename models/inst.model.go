@@ -6,26 +6,26 @@ import (
 	"github.com/google/uuid"
 )
 
-type Institution struct {
+type Inst struct {
 	ID        uuid.UUID `gorm:"type:uuid;default:uuid_generate_v4();primary_key" json:"id,omitempty"`
 	Name      string    `gorm:"uniqueIndex;not null" json:"name,omitempty"`
 	Address   string    `gorm:"not null" json:"address,omitempty"`
-	Image     string    `json:"image,omitempty"`
+	Image     string    `gorm:"not null" json:"image,omitempty"`
 	User      uuid.UUID `gorm:"not null" json:"user,omitempty"`
 	CreatedAt time.Time `gorm:"not null" json:"created_at,omitempty"`
 	UpdatedAt time.Time `gorm:"not null" json:"updated_at,omitempty"`
 }
 
-type CreateInstitutionRequest struct {
+type CreateInstRequest struct {
 	Name      string    `json:"name"  binding:"required"`
 	Address   string    `json:"address" binding:"required"`
-	Image     string    `json:"image"`
+	Image     string    `json:"image" binding:"required"`
 	User      string    `json:"user,omitempty"`
 	CreatedAt time.Time `json:"created_at,omitempty"`
 	UpdatedAt time.Time `json:"updated_at,omitempty"`
 }
 
-type UpdateInstitution struct {
+type UpdateInst struct {
 	Name      string    `json:"name,omitempty"`
 	Address   string    `json:"address,omitempty"`
 	Image     string    `json:"image,omitempty"`
@@ -34,7 +34,7 @@ type UpdateInstitution struct {
 	UpdatedAt time.Time `json:"updated_at,omitempty"`
 }
 
-type InstitutionResponse struct {
+type InstResponse struct {
 	Name    string `json:"name,omitempty"`
 	Address string `json:"address,omitempty"`
 }

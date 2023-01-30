@@ -19,6 +19,9 @@ var (
 	UserController      controllers.UserController
 	UserRouteController routes.UserRouteController
 
+	InstController      controllers.InstController
+	InstRouteController routes.InstRouteController
+
 	InstitutionController      controllers.InstitutionController
 	InstitutionRouteController routes.InstitutionRouteController
 )
@@ -36,6 +39,9 @@ func init() {
 
 	UserController = controllers.NewUserController(initializers.DB)
 	UserRouteController = routes.NewRouteUserController(UserController)
+
+	InstController = controllers.NewInstController(initializers.DB)
+	InstRouteController = routes.NewRouteInstController(InstController)
 
 	InstitutionController = controllers.NewInstitutionController(initializers.DB)
 	InstitutionRouteController = routes.NewRouteInstitutionController(InstitutionController)
@@ -59,7 +65,7 @@ func main() {
 
 	server.Use(cors.New(corsConfig))
 
-	router := server.Group("/api")
+	router := server.Group("api")
 	router.GET("/healthchecker", func(ctx *gin.Context) {
 		message := "Welcome to Golang with Gorm and Postgres"
 		ctx.JSON(http.StatusOK, gin.H{"status": "success", "message": message})
@@ -67,6 +73,7 @@ func main() {
 
 	AuthRouteController.AuthRoute(router)
 	UserRouteController.UserRoute(router)
+	InstRouteController.InstRoute(router)
 	InstitutionRouteController.InstitutionRoute(router)
 	log.Fatal(server.Run(":" + config.ServerPort))
 }

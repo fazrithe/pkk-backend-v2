@@ -15,10 +15,10 @@ func NewRouteInstitutionController(institutionController controllers.Institution
 }
 
 func (ic *InstitutionRouteController) InstitutionRoute(rg *gin.RouterGroup) {
-	router := rg.Group("/institutions")
+	router := rg.Group("institutions")
 	router.Use(middleware.DeserializeUser())
-	router.POST("/", ic.institutionController.CreateInstitution)
-	router.GET("/", ic.institutionController.FindInstitutions)
+	router.POST("", ic.institutionController.CreateInstitution)
+	router.GET("", ic.institutionController.FindInstitutions)
 	router.GET("/:institutionId", ic.institutionController.FindInstitutionById)
 	router.PUT("/:institutionId", ic.institutionController.UpdateInstitution)
 	router.DELETE("/:institutionId", ic.institutionController.DeleteController)
