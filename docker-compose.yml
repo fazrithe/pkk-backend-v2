@@ -1,9 +1,23 @@
+version: "3.8"
 services:
+  backend:
+    build:
+      context: .
+      # Correct the path to your Dockerfile
+      dockerfile: Dockerfile
+    ports:
+      - 8080:3000
+    # Important to bind/mount your codebase dir to /app dir for live reload
+    volumes:
+      - ./:/app
   postgres:
     image: postgres
-    container_name: postgres
+    restart: always
+    environment:
+      POSTGRES_PASSWORD: secret
+    container_name: postgers
     ports:
-      - 6500:5432
+          - 5432:5432
     env_file:
       - ./app.env
     volumes:
