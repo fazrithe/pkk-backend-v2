@@ -1,6 +1,8 @@
 package routes
 
 import (
+	"net/http"
+
 	"github.com/fazrithe/pkk-backend-v2/controllers"
 	"github.com/fazrithe/pkk-backend-v2/middleware"
 	"github.com/gin-gonic/gin"
@@ -17,11 +19,12 @@ func NewRouteUserController(userController controllers.UserController) UserRoute
 func (uc *UserRouteController) UserRoute(rg *gin.RouterGroup) {
 
 	router := rg.Group("users")
-	router.Use(middleware.DeserializeUser())
-	router.GET("/me", uc.userController.GetMe)
-	router.GET("", uc.userController.FindUser)
-	router.POST("", uc.userController.CreateUser)
-	router.GET("/:userId", uc.userController.FindUserById)
-	router.PUT("/:userId", uc.userController.UpdateUser)
-	router.DELETE("/:userId", uc.userController.DeleteUser)
+	router.GET("/me", middleware.DeserializeUser(), uc.userController.GetMe)
+	router.GET("", middleware.DeserializeUser(), uc.userController.FindUser)
+	router.POST("", middleware.DeserializeUser(), uc.userController.CreateUser)
+	router.GET("/:userId", middleware.DeserializeUser(), uc.userController.FindUserById)
+	router.PUT("/:userId", middleware.DeserializeUser(), uc.userController.UpdateUser)
+	router.DELETE("/:userId", middleware.DeserializeUser(), uc.userController.DeleteUser)
+	router.POST("/upload", middleware.DeserializeUser(), uc.userController.UploadPhoto)
+	router.StaticFS("/images", http.Dir("public"))
 }
