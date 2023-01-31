@@ -27,6 +27,7 @@ type SignUpInput struct {
 	Password        string `json:"password" binding:"required,min=8"`
 	PasswordConfirm string `json:"passwordConfirm" binding:"required"`
 	Photo           string `json:"photo" binding:"required"`
+	Role            string `json:"role"`
 }
 
 type SignInInput struct {
