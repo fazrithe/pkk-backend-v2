@@ -33,6 +33,8 @@ func (uc *UserController) GetMe(ctx *gin.Context) {
 		Name:      currentUser.Name,
 		Email:     currentUser.Email,
 		Photo:     currentUser.Photo,
+		PhotoName: currentUser.PhotoName,
+		PhotoPath: currentUser.PhotoPath,
 		Role:      currentUser.Role,
 		Provider:  currentUser.Provider,
 		CreatedAt: currentUser.CreatedAt,
@@ -177,6 +179,51 @@ func (uc *UserController) DeleteUser(ctx *gin.Context) {
 	}
 
 	ctx.JSON(http.StatusOK, gin.H{"status": "success"})
+}
+
+func (uc *UserController) UpdateProfile(ctx *gin.Context) {
+	userId := ctx.Param("userId")
+	name := ctx.Request.FormValue("name")
+	file, header, err := ctx.Request.FormFile("photo")
+	if err != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{"status": "fail", "message": "Photo not found"})
+		return
+	}
+
+	fileExt := filepath.Ext(header.Filename)
+	var updateUser models.User
+	result := uc.DB.First(&updateUser, "id = ?", userId)
+	if result.Error != nil {
+		ctx.JSON(http.StatusNotFound, gin.H{"status": "fail", "message": "No user with that name"})
+		return
+	}
+
+	originalFileName := strings.TrimSuffix(filepath.Base(header.Filename), filepath.Ext(header.Filename))
+	now := time.Now()
+	filename := strings.ReplaceAll(strings.ToLower(originalFileName), " ", "-") + "-" + fmt.Sprintf("%v", now.Unix()) + fileExt
+	filePath := "http://localhost:8080/api/users/images/users/" + filename
+
+	out, err := os.Create("public/users/" + filename)
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer out.Close()
+	_, err = io.Copy(out, file)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	userToUpdate := models.User{
+		Name:      name,
+		PhotoName: filename,
+		PhotoPath: filePath,
+		CreatedAt: updateUser.CreatedAt,
+		UpdatedAt: now,
+	}
+
+	uc.DB.Model(&updateUser).Updates(userToUpdate)
+
+	ctx.JSON(http.StatusOK, gin.H{"status": "success", "data": filePath})
 }
 
 func (uc *UserController) UploadPhoto(ctx *gin.Context) {

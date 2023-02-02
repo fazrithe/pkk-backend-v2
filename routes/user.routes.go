@@ -26,5 +26,6 @@ func (uc *UserRouteController) UserRoute(rg *gin.RouterGroup) {
 	router.PUT("/:userId", middleware.DeserializeUser(), uc.userController.UpdateUser)
 	router.DELETE("/:userId", middleware.DeserializeUser(), uc.userController.DeleteUser)
 	router.POST("/upload", middleware.DeserializeUser(), uc.userController.UploadPhoto)
+	router.PUT("/profile/:userId", middleware.DeserializeUser(), uc.userController.UpdateProfile)
 	router.StaticFS("/images", http.Dir("public"))
 }
